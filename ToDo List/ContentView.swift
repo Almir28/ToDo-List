@@ -9,74 +9,102 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
-    @StateObject private var presenter: TodoListPresenter = TodoListPresenter()
+    @Environment(\.managedObjectContext) private var viewContext
+    @StateObject private var presenter: TodoListPresenter
     @State private var searchText = ""
-    @State private var isAddingNewTask = false
+    @State private var showingNewTask = false
+    @State private var isLoading = true
+    
+    init() {
+        let context = CoreDataStack.shared.context
+        _presenter = StateObject(wrappedValue: TodoListPresenter(context: context))
+    }
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
-                // Search Bar
-                SearchBar(text: $searchText, onSearchButtonClicked: {
-                    presenter.searchTasks(query: searchText)
-                })
-                .padding(.top)
-                
-                // Task List
-                List {
-                    ForEach(presenter.tasks, id: \.id) { task in
+            ZStack {
+                VStack(spacing: 0) {
+                    // Search Bar
+                    SearchBar(text: $searchText, onSearchButtonClicked: {
+                        presenter.searchTasks(query: searchText)
+                    })
+                    .padding(.top)
+                    .padding(.bottom, 8)
+                    
+                    // Task List
+                    List {
+                        ForEach(presenter.tasks, id: \.id) { task in
+                            TodoTaskRow(task: task) { updatedTask in
+                                presenter.updateTask(updatedTask)
+                            }
+                        }
+                        .onDelete { indexSet in
+                            presenter.deleteTasks(at: indexSet)
+                        }
+                    }
+                    .listStyle(PlainListStyle())
+                    .background(Color.black)
+                    .scrollContentBackground(.hidden)
+                    
+                    // Bottom Bar with Task Count and Add Button
+                    HStack {
+                        Spacer()
+                        Text("\(presenter.tasks.count) Задач")
+                            .foregroundColor(.gray)
+                            .font(.system(size: 13))
+                        Spacer()
+                        
                         NavigationLink(
-                            destination: TaskDetailView(task: task),
+                            isActive: $showingNewTask,
+                            destination: {
+                                NewTaskView()
+                                    .environment(\.managedObjectContext, viewContext)
+                                    .navigationBarBackButtonHidden(true)
+                                    .onDisappear {
+                                        presenter.refreshTasks()
+                                    }
+                            },
                             label: {
-                                TodoTaskRow(task: task) { updatedTask in
-                                    presenter.updateTask(updatedTask)
-                                }
+                                Image(systemName: "square.and.pencil")
+                                    .resizable()
+                                    .frame(width: 24, height: 24)
+                                    .foregroundColor(.yellow)
+                                    .onTapGesture {
+                                        showingNewTask = true
+                                    }
                             }
                         )
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 16)
+                    .frame(height: 50)
+                    .background(Color(hex: "#272729").edgesIgnoringSafeArea(.bottom))
+                    .overlay(
+                        Rectangle()
+                            .frame(height: 0.5)
+                            .foregroundColor(Color.gray.opacity(0.3)),
+                        alignment: .top
+                    )
                 }
-                .listStyle(PlainListStyle())
-                .background(Color.black)
                 
-                // Bottom Bar with Task Count and Add Button
-                HStack {
-                    Spacer()
-                    Text("\(presenter.tasks.count) Задач")
-                        .foregroundColor(.gray)
-                        .font(.system(size: 13))
-                    Spacer()
-                    
-                    NavigationLink(isActive: $isAddingNewTask) {
-                        NewTaskView { newTask in
-                            presenter.addTask(newTask)
-                            isAddingNewTask = false
-                            presenter.viewDidLoad()
-                        }
-                    } label: {
-                        Image(systemName: "square.and.pencil")
-                            .resizable()
-                            .frame(width: 24, height: 24)
-                            .foregroundColor(.yellow)
+                if isLoading && presenter.tasks.isEmpty {
+                    ZStack {
+                        Color.black.edgesIgnoringSafeArea(.all)
+                        ProgressView("Загрузка задач...")
+                            .scaleEffect(1.5)
+                            .progressViewStyle(CircularProgressViewStyle(tint: .yellow))
+                            .foregroundColor(.white)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 16)
-                .frame(height: 50)
-                .background(Color(hex: "272729").edgesIgnoringSafeArea(.bottom))
-                .overlay(
-                    Rectangle()
-                        .frame(height: 0.5)
-                        .foregroundColor(Color.gray.opacity(0.3)),
-                    alignment: .top
-                )
             }
             .navigationTitle("Задачи")
             .preferredColorScheme(.dark)
         }
         .onAppear {
-            presenter.viewDidLoad()
+            // Скрываем индикатор загрузки через 2 секунды
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                isLoading = false
+            }
         }
     }
 }

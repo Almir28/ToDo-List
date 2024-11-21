@@ -3,29 +3,18 @@ import CoreData
 class CoreDataStack {
     static let shared = CoreDataStack()
     
-    lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "TodoList")
-        container.loadPersistentStores { description, error in
+    let persistentContainer: NSPersistentContainer
+    var context: NSManagedObjectContext { persistentContainer.viewContext }
+    
+    private init() {
+        persistentContainer = NSPersistentContainer(name: "TodoList")
+        
+        persistentContainer.loadPersistentStores { description, error in
             if let error = error {
-                fatalError("Ошибка загрузки Core Data stack: \(error)")
+                fatalError("Core Data store failed to load: \(error.localizedDescription)")
             }
         }
-        return container
-    }()
-    
-    var context: NSManagedObjectContext {
-        persistentContainer.viewContext
+        
+        context.automaticallyMergesChangesFromParent = true
     }
-    
-    func saveContext() {
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                print("Ошибка сохранения контекста: \(error)")
-            }
-        }
-    }
-    
-    private init() {} // Приватный инициализатор для синглтона
 } 

@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		81EE062E2CEE01AC00128CE0 /* ToDo List.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = "ToDo List.app"; path = "/Users/noidealcode/Downloads/Tech/ToDo List/build/Debug-iphoneos/ToDo List.app"; sourceTree = "<absolute>"; };
+		8170F1AF2CEE2EA400FEFD59 /* ToDo List.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ToDo List.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -33,6 +33,7 @@
 			isa = PBXGroup;
 			children = (
 				81EE06302CEE01AC00128CE0 /* ToDo List */,
+				8170F1AF2CEE2EA400FEFD59 /* ToDo List.app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -58,7 +59,7 @@
 			packageProductDependencies = (
 			);
 			productName = "ToDo List";
-			productReference = 81EE062E2CEE01AC00128CE0 /* ToDo List.app */;
+			productReference = 8170F1AF2CEE2EA400FEFD59 /* ToDo List.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */

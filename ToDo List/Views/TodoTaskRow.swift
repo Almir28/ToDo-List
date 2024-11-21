@@ -1,12 +1,14 @@
 import SwiftUI
+import UIKit
+
+// Добавьте импорт, если MenuButton находится в другом модуле
+// import YourModuleName
 
 struct TodoTaskRow: View {
+    @Environment(\.managedObjectContext) private var viewContext
     let task: TodoTask
     let onUpdate: (TodoTask) -> Void
     @State private var isCompleted: Bool
-    @State private var showingActionSheet = false
-    @State private var showingEditView = false
-    @Environment(\.managedObjectContext) private var viewContext
     
     init(task: TodoTask, onUpdate: @escaping (TodoTask) -> Void) {
         self.task = task
@@ -15,114 +17,126 @@ struct TodoTaskRow: View {
     }
     
     var body: some View {
-        ZStack {
-            // Основной контент задачи
-            HStack(spacing: 12) {
-                // Checkbox
-                Button(action: {
-                    withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
-                        isCompleted.toggle()
-                        var updatedTask = task
-                        updatedTask.isCompleted = isCompleted
-                        onUpdate(updatedTask)
-                    }
-                }) {
-                    Circle()
-                        .stroke(isCompleted ? Color.gray.opacity(0.6) : Color.orange, lineWidth: 2)
-                        .frame(width: 22, height: 22)
-                        .overlay(
-                            Circle()
-                                .fill(isCompleted ? Color.gray.opacity(0.6) : Color.clear)
-                                .frame(width: 18, height: 18)
-                        )
-                        .animation(.spring(response: 0.2), value: isCompleted)
-                }
-                
-                // Task Content
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(task.wrappedTitle)
-                        .font(.system(size: 17))
-                        .foregroundColor(isCompleted ? Color.gray.opacity(0.6) : .white)
-                        .strikethrough(isCompleted, color: Color.gray.opacity(0.6))
-                    
-                    if !task.wrappedDescription.isEmpty {
-                        Text(task.wrappedDescription)
-                            .font(.system(size: 15))
-                            .foregroundColor(Color.gray.opacity(0.8))
-                            .lineLimit(1)
-                    }
-                    
-                    Text(formattedDate(task.wrappedCreatedAt))
-                        .font(.system(size: 13))
-                        .foregroundColor(Color.gray.opacity(0.6))
-                }
-                .opacity(isCompleted ? 0.6 : 1)
-                .animation(.easeInOut(duration: 0.2), value: isCompleted)
-                
+        VStack(spacing: 0) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                checkboxView
+                taskContentView
                 Spacer()
             }
-            .padding(.vertical, 6)
+            .padding(.vertical, 8)
             .background(Color.black)
-            .onLongPressGesture {
-                withAnimation {
-                    showingActionSheet = true
+            .contextMenu {
+                Button(action: {
+                    // Действие редактирования
+                }) {
+                    Label("Редактировать", systemImage: "square.and.pencil")
+                }
+                
+                Button(action: {
+                    shareNote()
+                }) {
+                    Label("Поделиться", systemImage: "square.and.arrow.up")
+                }
+                
+                Button(role: .destructive, action: {
+                    deleteNote()
+                }) {
+                    Label("Удалить", systemImage: "trash")
+                }
+            } preview: {
+                ZStack {
+                    Color(hex: "#272729")
+                        .edgesIgnoringSafeArea(.all)
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(task.wrappedTitle)
+                            .font(.system(size: 17, weight: .regular))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.leading)
+                        
+                        if !task.wrappedDescription.isEmpty {
+                            Text(task.wrappedDescription)
+                                .font(.system(size: 15, weight: .regular))
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.leading)
+                        }
+                        
+                        Text(formattedDate(task.wrappedCreatedAt))
+                            .font(.system(size: 13))
+                            .foregroundColor(.gray)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(hex: "#272729"))
                 }
             }
             
-            // Меню действий
-            if showingActionSheet {
-                ActionMenu(
-                    onEdit: {
-                        withAnimation {
-                            showingActionSheet = false
-                            showingEditView = true
-                        }
-                    },
-                    onShare: {
-                        withAnimation {
-                            showingActionSheet = false
-                            shareTask()
-                        }
-                    },
-                    onDelete: {
-                        withAnimation {
-                            showingActionSheet = false
-                            deleteTask()
-                        }
-                    },
-                    onDismiss: {
-                        withAnimation {
-                            showingActionSheet = false
-                        }
-                    }
-                )
-            }
+            Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(height: 0.5)
         }
-        .sheet(isPresented: $showingEditView) {
-            TaskDetailView(task: task)
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
+    }
+    
+    private func shareNote() {
+        let text = "\(task.wrappedTitle)\n\(task.wrappedDescription)"
+        let av = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first,
+           let viewController = window.rootViewController {
+            viewController.present(av, animated: true)
         }
     }
     
-    private func deleteTask() {
+    private func deleteNote() {
         viewContext.delete(task)
         try? viewContext.save()
     }
     
-    private func shareTask() {
-        let textToShare = "\(task.wrappedTitle)\n\(task.wrappedDescription)"
-        let activityVC = UIActivityViewController(
-            activityItems: [textToShare],
-            applicationActivities: nil
-        )
-        
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first,
-           let rootVC = window.rootViewController {
-            activityVC.popoverPresentationController?.sourceView = rootVC.view
-            activityVC.popoverPresentationController?.sourceRect = CGRect(x: UIScreen.main.bounds.width/2, y: UIScreen.main.bounds.height/2, width: 0, height: 0)
-            activityVC.popoverPresentationController?.permittedArrowDirections = []
-            rootVC.present(activityVC, animated: true)
+    private var checkboxView: some View {
+        ZStack {
+            Circle()
+                .stroke(isCompleted ? Color.yellow : Color.gray.opacity(0.6), lineWidth: 1)
+                .frame(width: 22, height: 22)
+            
+            if isCompleted {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 12, weight: .light))
+                    .foregroundColor(.yellow)
+            }
         }
+        .contentShape(Circle())
+        .onTapGesture {
+            withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
+                isCompleted.toggle()
+                task.isCompleted = isCompleted
+                onUpdate(task)
+            }
+        }
+    }
+    
+    private var taskContentView: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(task.wrappedTitle)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundColor(isCompleted ? .gray : .white)
+                .strikethrough(isCompleted, color: .gray)
+                .lineLimit(1)
+            
+            if !task.wrappedDescription.isEmpty {
+                Text(task.wrappedDescription)
+                    .font(.system(size: 15, weight: .regular))
+                    .foregroundColor(isCompleted ? .gray : .white)
+                    .lineLimit(2)
+            }
+            
+            Text(formattedDate(task.wrappedCreatedAt))
+                .font(.system(size: 13, weight: .regular))
+                .foregroundColor(.gray.opacity(0.6))
+        }
+        .opacity(isCompleted ? 0.6 : 1)
     }
     
     private func formattedDate(_ date: Date) -> String {
