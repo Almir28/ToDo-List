@@ -7,7 +7,8 @@
 
 import CoreData
 @testable import ToDo_List
-
+/// Мок-реализация менеджера данных для тестирования
+/// Имитирует работу TodoListDataManager для модульных тестов
 class MockTodoListDataManager: TodoListDataManagerProtocol {
     let context: NSManagedObjectContext
     

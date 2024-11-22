@@ -3,18 +3,24 @@
 //  ToDo List
 //
 //  Created by Swift Developer on 21.11.2024.
-//
 
 import CoreData
-
+/// Протокол и реализация слоя доступа к данным для ToDo приложения
+/// Обеспечивает CRUD операции с задачами через CoreData
+// MARK: - Protocol
 protocol TodoListDataManagerProtocol {
+    
     func fetchTasks() async throws -> [TodoTask]
+    
     func saveTask(_ task: TodoTask) async throws
+    
     func deleteTask(_ task: TodoTask) async throws
+    
     func searchTasks(query: String) async throws -> [TodoTask]
+    
     func updateTask(_ task: TodoTask) async throws
 }
-
+// MARK: - Implementation
 class TodoListDataManager: TodoListDataManagerProtocol {
     private let context: NSManagedObjectContext
     
@@ -40,7 +46,10 @@ class TodoListDataManager: TodoListDataManagerProtocol {
     func searchTasks(query: String) async throws -> [TodoTask] {
         let request = TodoTask.fetchRequest()
         if !query.isEmpty {
-            request.predicate = NSPredicate(format: "title CONTAINS[cd] %@ OR todoDescription CONTAINS[cd] %@", query, query)
+            request.predicate = NSPredicate(
+                format: "title CONTAINS[cd] %@ OR todoDescription CONTAINS[cd] %@",
+                query, query
+            )
         }
         request.sortDescriptors = [NSSortDescriptor(keyPath: \TodoTask.createdAt, ascending: false)]
         return try context.fetch(request)

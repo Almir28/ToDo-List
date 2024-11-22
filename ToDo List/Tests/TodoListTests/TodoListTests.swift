@@ -8,7 +8,8 @@
 import XCTest
 import CoreData
 @testable import ToDo_List
-
+/// Модульные тесты для VIPER модуля списка задач
+/// Тестирует основной функционал и взаимодействие между компонентами
 final class TodoListTests: XCTestCase {
     var presenter: TodoListPresenter!
     var view: MockTodoListView!

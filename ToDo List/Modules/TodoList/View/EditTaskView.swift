@@ -29,19 +29,19 @@ struct EditTaskView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             TextField("Заголовок", text: $title)
-                .font(.system(size: 20, weight: .regular)) // Уменьшен размер с 24 и вес с .semibold
+                .font(.system(size: 20, weight: .regular))
                 .foregroundColor(.white)
                 .padding(.horizontal, 16)
                 .padding(.top, 16)
             
             Text(formattedDate(task.wrappedCreatedAt))
-                .font(.system(size: 11, weight: .light)) // Уменьшен размер с 13 и добавлен .light
+                .font(.system(size: 11, weight: .light))
                 .foregroundColor(.gray)
                 .padding(.horizontal, 16)
                 .padding(.top, 2)
             
             TextEditor(text: $description)
-                .font(.system(size: 15, weight: .light)) // Уменьшен размер с 17 и изменен вес на .light
+                .font(.system(size: 15, weight: .light)) 
                 .foregroundColor(.white)
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)

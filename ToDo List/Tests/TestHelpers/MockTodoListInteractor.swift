@@ -7,7 +7,7 @@
 
 import Foundation
 @testable import ToDo_List
-
+/// Мок-реализация интерактора для тестирования VIPER модуля
 class MockTodoListInteractor: TodoListInteractorProtocol {
     var presenter: TodoListPresenterProtocol?
     var dataManager: TodoListDataManagerProtocol

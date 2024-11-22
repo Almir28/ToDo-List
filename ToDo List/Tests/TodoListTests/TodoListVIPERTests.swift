@@ -9,7 +9,8 @@ import XCTest
 import CoreData
 import UIKit
 @testable import ToDo_List
-
+/// Интеграционные тесты VIPER архитектуры для Todo приложения
+/// Проверяет взаимодействие между всеми слоями и CoreData
 final class TodoListVIPERTests: XCTestCase {
     var view: MockTodoListView!
     var interactor: TodoListInteractorProtocol!

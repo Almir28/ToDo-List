@@ -1,7 +1,9 @@
+
 import Foundation
 import CoreData
 import SwiftUI
-
+/// Презентер для управления списком задач в VIPER архитектуре
+/// Обеспечивает загрузку, отображение и управление задачами через CoreData и API
 class TodoListPresenter: ObservableObject, TodoListPresenterProtocol {
     @Published var tasks: [TodoTask] = []
     @Published var isLoading = false
@@ -52,8 +54,11 @@ class TodoListPresenter: ObservableObject, TodoListPresenterProtocol {
         let count = (try? viewContext.count(for: request)) ?? 0
         
         if count == 0 {
-            isLoading = true
-            view?.showLoading()
+            await MainActor.run {
+                isLoading = true
+                view?.showLoading()
+            }
+            
             do {
                 let apiTodos = try await APIService.shared.fetchTodos()
                 
@@ -74,12 +79,17 @@ class TodoListPresenter: ObservableObject, TodoListPresenterProtocol {
                     } catch {
                         view?.showError(error)
                     }
+                    
+                    isLoading = false
+                    view?.hideLoading()
                 }
             } catch {
-                view?.showError(error)
+                await MainActor.run {
+                    view?.showError(error)
+                    isLoading = false
+                    view?.hideLoading()
+                }
             }
-            isLoading = false
-            view?.hideLoading()
         }
     }
     

@@ -1,6 +1,7 @@
 import SwiftUI
 import UIKit
-
+/// Кастомная ячейка для отображения задачи в списке с поддержкой всех действий
+/// Реализует отображение задачи, редактирование, удаление и шаринг через контекстное меню
 struct TodoTaskRow: View {
     @Environment(\.managedObjectContext) private var viewContext
     let task: TodoTask
@@ -155,6 +156,8 @@ struct TodoTaskRow: View {
                 .foregroundColor(.gray.opacity(0.6))
                 .padding(.leading, 32)
         }
+        .padding(.vertical, 12)
+        .background(Color.black)
         .opacity(isCompleted ? 0.6 : 1)
     }
     

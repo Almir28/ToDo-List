@@ -3,13 +3,13 @@
 //  TodoListTests
 //
 //  Created by Swift Developer on 21.11.2024.
-//
 
 import UIKit
 import SwiftUI
 @testable import ToDo_List
 import CoreData
-
+/// Мок-реализация роутера для тестирования навигации
+/// Отслеживает вызовы методов навигации и возвращает пустые контроллеры
 class MockTodoListRouter: TodoListRouterProtocol {
     var makeNewTaskViewCalled = false
     var makeEditTaskViewCalled = false

@@ -6,7 +6,8 @@
 //
 import CoreData
 @testable import ToDo_List
-
+/// Тестовый стек CoreData для модульных тестов
+/// Реализует in-memory хранилище и методы очистки данных
 class TestCoreDataStack {
     static let shared = TestCoreDataStack()
     
@@ -68,3 +69,4 @@ class TestCoreDataStack {
         NSManagedObjectContext.mergeChanges(fromRemoteContextSave: changes, into: [context])
     }
 }
+

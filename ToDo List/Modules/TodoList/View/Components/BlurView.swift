@@ -1,5 +1,6 @@
 import SwiftUI
-
+/// Обертка для UIBlurEffect в SwiftUI
+/// Добавляет эффект размытия как в нативных iOS компонентах
 struct BlurView: UIViewRepresentable {
     let style: UIBlurEffect.Style
 

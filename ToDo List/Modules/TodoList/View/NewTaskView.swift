@@ -1,5 +1,5 @@
 import SwiftUI
-
+/// Экран создания новой задачи с поддержкой CoreData
 struct NewTaskView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.presentationMode) var presentationMode
@@ -12,7 +12,6 @@ struct NewTaskView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Заголовок
             TextField("", text: $title)
                 .font(.system(size: 24, weight: .semibold))
                 .foregroundColor(.white)
@@ -25,7 +24,6 @@ struct NewTaskView: View {
                 .padding(.top, 16)
             
             if showingDate {
-                // Дата
                 Text(formattedDate(Date()))
                     .font(.system(size: 13))
                     .foregroundColor(.gray)
@@ -33,7 +31,6 @@ struct NewTaskView: View {
                     .padding(.top, 2)
             }
             
-            // Описание
             TextEditor(text: $description)
                 .font(.system(size: 17, weight: .regular))
                 .foregroundColor(.white)

@@ -7,9 +7,9 @@
 
 import SwiftUI
 import CoreData
-
 @main
 struct ToDo_ListApp: App {
+    /// Стек CoreData для управления данными
     let persistenceController = CoreDataStack.shared
     
     var body: some Scene {
