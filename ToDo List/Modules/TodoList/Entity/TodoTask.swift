@@ -1,12 +1,7 @@
-import Foundation
 import CoreData
 
 @objc(TodoTask)
 public class TodoTask: NSManagedObject {
-}
-
-// MARK: - Core Data properties
-extension TodoTask {
     @nonobjc public class func fetchRequest() -> NSFetchRequest<TodoTask> {
         return NSFetchRequest<TodoTask>(entityName: "TodoTask")
     }
@@ -19,7 +14,8 @@ extension TodoTask {
     @NSManaged public var userId: Int64
 }
 
-// MARK: - Convenience methods
+extension TodoTask: TodoEntityProtocol {}
+
 extension TodoTask: Identifiable {
     var wrappedTitle: String {
         title ?? "Новая задача"

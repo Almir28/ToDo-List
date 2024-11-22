@@ -13,7 +13,7 @@ struct NewTaskView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Заголовок
-            TextField("Заголовок", text: $title)
+            TextField("", text: $title)
                 .font(.system(size: 24, weight: .semibold))
                 .foregroundColor(.white)
                 .focused($isTitleFocused)
