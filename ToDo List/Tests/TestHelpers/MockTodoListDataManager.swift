@@ -1,32 +1,37 @@
-//
-//  MockTodoListDataManager.swift
-//  TodoListTests
-//
-//  Created by Swift Developer on 22.11.2024.
-//
-
 import CoreData
 @testable import ToDo_List
+
 /// Мок-реализация менеджера данных для тестирования
 /// Имитирует работу TodoListDataManager для модульных тестов
 class MockTodoListDataManager: TodoListDataManagerProtocol {
-    let context: NSManagedObjectContext
+    let context: NSManagedObjectContext // Контекст для работы с Core Data
     
     init(context: NSManagedObjectContext) {
-        self.context = context
+        self.context = context // Инициализация контекста
     }
     
+    /// Имитация получения задач
     func fetchTasks() async throws -> [TodoTask] {
-        return []
+        return [] // Возвращает пустой массив задач
     }
     
-    func saveTask(_ task: TodoTask) async throws {}
+    /// Имитация сохранения задачи
+    func saveTask(_ task: TodoTask) async throws {
+        // Пустая реализация для тестирования
+    }
     
-    func deleteTask(_ task: TodoTask) async throws {}
+    /// Имитация удаления задачи
+    func deleteTask(_ task: TodoTask) async throws {
+        // Пустая реализация для тестирования
+    }
     
+    /// Имитация поиска задач по запросу
     func searchTasks(query: String) async throws -> [TodoTask] {
-        return []
+        return [] // Возвращает пустой массив задач
     }
     
-    func updateTask(_ task: TodoTask) async throws {}
+    /// Имитация обновления задачи
+    func updateTask(_ task: TodoTask) async throws {
+        // Пустая реализация для тестирования
+    }
 }

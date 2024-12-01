@@ -1,4 +1,5 @@
 import CoreData
+
 /// Синглтон для управления Core Data стеком приложения
 /// Реализует базовую конфигурацию хранилища данных
 class CoreDataStack {
@@ -11,8 +12,8 @@ class CoreDataStack {
     /// - Returns: Настроенный NSManagedObjectContext с политикой слияния
     var context: NSManagedObjectContext {
         let context = persistentContainer.viewContext
-        context.automaticallyMergesChangesFromParent = true
-        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        context.automaticallyMergesChangesFromParent = true // Автоматическое слияние изменений из родительского контекста
+        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy // Политика слияния, при которой изменения объекта имеют приоритет
         return context
     }
     
@@ -24,19 +25,20 @@ class CoreDataStack {
         
         // Конфигурация сущности TodoTask
         let taskEntity = NSEntityDescription()
-        taskEntity.name = "TodoTask"
-        taskEntity.managedObjectClassName = String(describing: TodoTask.self)
+        taskEntity.name = "TodoTask" // Имя сущности
+        taskEntity.managedObjectClassName = String(describing: TodoTask.self) // Класс управляемого объекта
         
         // Определение атрибутов
         let attributes: [(String, NSAttributeType, Bool)] = [
-            ("id", .integer64AttributeType, false),
-            ("title", .stringAttributeType, true),
-            ("todoDescription", .stringAttributeType, true),
-            ("createdAt", .dateAttributeType, true),
-            ("isCompleted", .booleanAttributeType, false),
-            ("userId", .integer64AttributeType, false)
+            ("id", .integer64AttributeType, false), // Идентификатор задачи
+            ("title", .stringAttributeType, true), // Заголовок задачи
+            ("todoDescription", .stringAttributeType, true), // Описание задачи
+            ("createdAt", .dateAttributeType, true), // Дата создания задачи
+            ("isCompleted", .booleanAttributeType, false), // Статус выполнения задачи
+            ("userId", .integer64AttributeType, false) // Идентификатор пользователя
         ]
         
+        // Создание атрибутов для сущности
         taskEntity.properties = attributes.map { name, type, isOptional in
             let attribute = NSAttributeDescription()
             attribute.name = name
@@ -45,20 +47,20 @@ class CoreDataStack {
             return attribute
         }
         
-        model.entities = [taskEntity]
+        model.entities = [taskEntity] // Добавление сущности в модель данных
         
         // Настройка контейнера и хранилища
         persistentContainer = NSPersistentContainer(name: "TodoList", managedObjectModel: model)
         
         let description = NSPersistentStoreDescription()
-        description.type = NSInMemoryStoreType
-        description.shouldAddStoreAsynchronously = false
+        description.type = NSInMemoryStoreType // Использование временного хранилища для тестирования
+        description.shouldAddStoreAsynchronously = false // Синхронная загрузка хранилища
         
         #if DEBUG
-        description.url = URL(fileURLWithPath: "/dev/null")
+        description.url = URL(fileURLWithPath: "/dev/null") // Для отладки
         #else
         if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            description.url = documentsDirectory.appendingPathComponent("TodoList.sqlite")
+            description.url = documentsDirectory.appendingPathComponent("TodoList.sqlite") // Путь к файлу базы данных
         }
         #endif
         
@@ -70,11 +72,11 @@ class CoreDataStack {
         
         persistentContainer.loadPersistentStores { _, error in
             if let error = error {
-                fatalError("Failed to load store: \(error)")
+                fatalError("Failed to load store: \(error)") // Завершение работы приложения в случае ошибки
             }
             group.leave()
         }
         
-        group.wait()
+        group.wait() // Ожидание завершения загрузки хранилища
     }
 }
